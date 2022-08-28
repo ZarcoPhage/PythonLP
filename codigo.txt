@@ -1,0 +1,10 @@
+Ancho 5
+Color de fondo Rojo
+
+Avanzar Derecha Avanzar 2
+Repetir 4 veces {
+    Repetir 8 veces {
+        Pintar Negro Avanzar 
+        }
+    Derecha Derecha Avanzar Derecha
+}
