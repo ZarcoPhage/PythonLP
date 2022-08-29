@@ -98,6 +98,40 @@ def background(color, matrix, ancho):
                 matrix[i][j] = newColor
         return matrix
 
+def paintCell(color, matrix, playerPos):
+    #print(playerPos)
+    xPos = playerPos[0]
+    yPos = playerPos[1]
+    if color == 'Rojo':
+        newColor = (255,0,0)
+        matrix[xPos][yPos] = newColor
+        return matrix
+    elif color == 'Verde':
+        newColor = (0,255,0)
+        matrix[xPos][yPos] = newColor
+        return matrix
+    elif color == 'Azul':
+        newColor = (0,0,255)
+        matrix[xPos][yPos] = newColor
+        return matrix
+    elif color == 'Negro':
+        newColor = (0,0,0)
+        matrix[xPos][yPos] = newColor
+        return matrix
+    elif color == 'Blanco':
+        newColor = (255,255,255)
+        matrix[xPos][yPos] = newColor
+        return matrix
+    else:
+        match = re.findall(r'\d+',color)
+        #print(match)
+        rVal = int(match[0])
+        gVal = int(match[1])
+        bVal = int(match[2])
+        newColor = (rVal, gVal, bVal)
+        matrix[xPos][yPos] = newColor
+        return matrix
+
 def changeDirection(directionIndex, order):
     if order == 'R':
         directionIndex+=1
@@ -116,8 +150,11 @@ completeCode = ""
 digPattern = re.compile(r'\d+')
 colorPattern =re.compile('(Rojo|Verde|Azul|Negro|Blanco|RGB[(]\d+[,]\d+[,]\d+[)])')
 file = open("codigo.txt","r")
+errorFile = open("errores.txt","w+")
 iteration = 1
 cycleTabs = 0
+numErrores = 0
+errorLineFlag = False
 
 directionIndex = 0
 directions = ('West','South','East','North')
@@ -129,17 +166,21 @@ matrix = []
 #lectura, tokenizacion y parseo
 for line in file:
     
+    errorLineFlag = False
     lineTokenList = []
     
-    print("line "+str(iteration)+": "+line)
+    #print("line "+str(iteration)+": "+line)
     
     for token in tokenizer(line):
         lineTokenList.append(token)
 
     for i in range(len(lineTokenList)):
         if lineTokenList[i][0] == 'NOMATCH':
-            ####CONDICIONAL PARA ERRORES
-            print('ERROR EN LINEA: '+str(iteration))         
+            if errorLineFlag == False:
+                errorFile.write(str(iteration)+" "+line)
+                numErrores += 1
+                errorLineFlag = True
+            #print('ERROR EN LINEA: '+str(iteration))         
         
         elif lineTokenList[i][0] == 'ancho':
             numAncho = re.findall(digPattern,lineTokenList[i][1])
@@ -157,7 +198,7 @@ for line in file:
             elif lineTokenList[i][1] == 'Izquierda':
                 directionIndex = changeDirection(directionIndex,'L')
             playerDirection = directions[directionIndex]
-            print(playerDirection)
+            #print(playerDirection)
 
         elif lineTokenList[i][0] == 'avanzar':
             indAvances = 0
@@ -168,17 +209,23 @@ for line in file:
                 
             while indAvances<avancesEsperados:        
                 if playerDirection == 'North':
-                    playerPos[0]+=1
-                elif playerDirection == 'South':
                     playerPos[0]-=1
+                elif playerDirection == 'South':
+                    playerPos[0]+=1
                 elif playerDirection == 'West':
                     playerPos[1]+=1
                 elif playerDirection == 'East':
                     playerPos[1]-=1
                 indAvances+=1
             
-            print(playerPos)
-        print(lineTokenList[i])
+            #print(playerPos)
+        
+        elif lineTokenList[i][0] == 'pintar':
+            #print(lineTokenList[i][1])
+            colorPintura = re.findall(colorPattern,lineTokenList[i][1]) 
+            matrix = paintCell(colorPintura[0],matrix,playerPos)
+
+        #print(lineTokenList[i])
         
     
     completeCode += line
@@ -186,8 +233,14 @@ for line in file:
 
 file.close()
 
-for i in range(ancho):
-    print(matrix[i])
+if numErrores == 0:
+    errorFile.write("No hay errores!")
+    for i in range(ancho):
+        print(matrix[i])
+    MatrizAImagen(matrix)
+
+errorFile.close()
+
 
 #print(completeCode)
 
@@ -201,11 +254,11 @@ for i in range(ancho):
 '''
 TO DO: 
 - Reconocimiento de tokens DONE
-- ejecucion de instrucciones: CORREGIR AVANCES, FALTA INSTRUCCION REPETIR
-- detección de errores: DEBERÍA ESTAR HECHA CON EL OPERADOR NOMATCH(?)
+- ejecucion de instrucciones: FALTA INSTRUCCION REPETIR
+- detección de errores: DONE
 - creacion de imagen luego de la ejecucion: DONE
-- creacion de archivo errores
-- mostrar por consola los valores de la matriz RGB en caso de ejecución exitosa: LITERALMENTE IMPRIMIR LA MATRIZ LOL
+- creacion de archivo errores: DONE
+- mostrar por consola los valores de la matriz RGB en caso de ejecución exitosa: DONE
 '''
 
 
