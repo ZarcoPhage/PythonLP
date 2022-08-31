@@ -1,8 +1,27 @@
-Ancho 3
-Color de fondo RGB(0,0,0)
+Ancho 5
+Color de fondo Blanco
 
-Pintar Rojo Avanzar 2 Derecha
-Pintar Verde Avanzar 2 Derecha
-Pintar Azul Avanzar 2 Derecha
-Pintar Blanco Avanzar Derecha Avanzar
-Pintar RGB(0,255,255)
+Pintar Negro Avanzar
+Pintar Negro Avanzar
+Pintar Negro Avanzar
+Pintar Negro Avanzar
+Pintar Negro Derecha
+
+Pintar Negro Avanzar
+Pintar Negro Avanzar
+Pintar Negro Avanzar
+Pintar Negro Avanzar
+Pintar Negro Derecha
+
+Pintar Negro Avanzar
+Pintar Negro Avanzar
+Pintar Negro Avanzar
+Pintar Negro Avanzar
+Pintar Negro Derecha
+
+Pintar Negro Avanzar
+Pintar Negro Avanzar
+Pintar Negro Avanzar
+Pintar Negro Avanzar
+Pintar Negro Derecha
+

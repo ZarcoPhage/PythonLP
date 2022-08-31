@@ -2,6 +2,21 @@ import re
 import numpy as np
 from PIL import Image
 
+class player:
+    def __init__(self, directionIndex, playerPos, directionList = ('West','South','East','North')):
+        self.directionList = directionList
+        self.directionIndex = directionIndex
+        self.playerPos = playerPos
+        self.playerDirection = directionList[directionIndex]
+
+    def setPlayerPos(self, newPlayerPos):
+        self.playerPos = newPlayerPos
+
+    def setPlayerDirection(self, newDirectionIndex):
+        self.directionIndex = newDirectionIndex
+        self.playerDirection = self.directionList[self.directionIndex]
+
+
 def MatrizAImagen(matriz, filename='pixelart.png', factor=10):
     '''
     Convierte una matriz de valores RGB en una imagen y la guarda como un archivo png.
@@ -98,10 +113,11 @@ def background(color, matrix, ancho):
                 matrix[i][j] = newColor
         return matrix
 
-def paintCell(color, matrix, playerPos):
-    #print(playerPos)
+def paintCell(color, matrix, player):
+    playerPos = player.playerPos
     xPos = playerPos[0]
     yPos = playerPos[1]
+    print(xPos,yPos)
     if color == 'Rojo':
         newColor = (255,0,0)
         matrix[xPos][yPos] = newColor
@@ -140,12 +156,87 @@ def changeDirection(directionIndex, order):
     directionIndex = directionIndex % 4
     return directionIndex
 
+def commandExecution(matriz, ancho, lines, player):
+    tempPlayerPos = player.playerPos
+    tempDirectionIndex = player.directionIndex
+    playerDirection = player.playerDirection
+    errorLineFlag = False
+    numErrores = 0
+    cycleTabs = 0
+    errorFile = open("errores.txt","w+")
+
+    for i in range(len(lines)):
+        largoLinea = len(lines[i])
+        print(lines[i])
+        for j in range(largoLinea):
+            if lines[i][j][0] == 'NOMATCH':
+                if errorLineFlag == False:
+                    errorFile.write(str(iteration)+" "+line)
+                    numErrores += 1
+                    errorLineFlag = True
+                #print('ERROR EN LINEA: '+str(iteration))         
+        
+            elif lines[i][j][0] == 'ancho':
+                numAncho = re.findall(digPattern,lines[i][j][1])
+                ancho = int(numAncho[0])
+                matrix = initMatrix(ancho)
+        
+            elif lines[i][j][0] == 'backColor':
+                colorFondo = re.findall(colorPattern,lines[i][j][1])
+                matrix = background(colorFondo[0],matrix,ancho)
+
+            elif lines[i][j][0] == 'direccion':
+                if lines[i][j][1] == 'Derecha':
+                    tempDirectionIndex = changeDirection(tempDirectionIndex,'R')
+                elif lines[i][j][1] == 'Izquierda':
+                    tempDirectionIndex = changeDirection(tempDirectionIndex,'L')
+                player.setPlayerDirection(tempDirectionIndex)
+                #print(player.playerDirection)
+
+            elif lines[i][j][0] == 'avanzar':
+                indAvances = 0
+                avancesEsperados = 1
+                cantidadAv = re.findall(digPattern,lines[i][j][1])
+                if(len(cantidadAv))>0:
+                    avancesEsperados = int(cantidadAv[0])
+                
+                while indAvances<avancesEsperados:        
+                    if player.playerDirection == 'North':
+                        tempPlayerPos[0]-=1
+                    elif player.playerDirection == 'South':
+                        tempPlayerPos[0]+=1
+                    elif player.playerDirection == 'West':
+                        tempPlayerPos[1]+=1
+                    elif player.playerDirection == 'East':
+                        tempPlayerPos[1]-=1
+                    indAvances+=1
+                player.setPlayerPos(tempPlayerPos)
+                print(player.playerPos)
+        
+            elif lines[i][j][0] == 'pintar':
+                colorPintura = re.findall(colorPattern,lines[i][j][1])
+              
+                matrix = paintCell(colorPintura[0],matrix,player)
+                for kl in range(len(matrix)):
+                    print(matrix[kl])
+        
+            elif lines[i][j][0] == 'repetir':
+                cantidadRep = re.findall(digPattern, lines[i][j][1])
+    
+    
+    if numErrores == 0:
+        errorFile.write("No hay errores!")
+    for i in range(ancho):
+        print(matrix[i])
+    MatrizAImagen(matrix)
+
+
 ################################################
 # CODIGO MAIN
 ################################################
 
 #inicializacion
-completeCode = ""
+completeCode = []
 
 digPattern = re.compile(r'\d+')
 colorPattern =re.compile('(Rojo|Verde|Azul|Negro|Blanco|RGB[(]\d+[,]\d+[,]\d+[)])')
@@ -156,88 +247,44 @@ cycleTabs = 0
 numErrores = 0
 errorLineFlag = False
 
+ancho = 0
+
 directionIndex = 0
-directions = ('West','South','East','North')
+#directions = ('West','South','East','North')
 playerPos = [0,0]
-playerDirection = directions[directionIndex]
+#playerDirection = directions[directionIndex]
 
 matrix = []
 
 #lectura, tokenizacion y parseo
+
 for line in file:
+    completeCode.append(line)
+file.close()
+
+#print(completeCode)
+
+lines = []
+for line in completeCode:
     
     errorLineFlag = False
     lineTokenList = []
     
-    #print("line "+str(iteration)+": "+line)
+    print("line "+str(iteration)+": "+line)
     
     for token in tokenizer(line):
         lineTokenList.append(token)
-
-    for i in range(len(lineTokenList)):
-        if lineTokenList[i][0] == 'NOMATCH':
-            if errorLineFlag == False:
-                errorFile.write(str(iteration)+" "+line)
-                numErrores += 1
-                errorLineFlag = True
-            #print('ERROR EN LINEA: '+str(iteration))         
-        
-        elif lineTokenList[i][0] == 'ancho':
-            numAncho = re.findall(digPattern,lineTokenList[i][1])
-            ancho = int(numAncho[0])
-            matrix = initMatrix(ancho)
-        
-        elif lineTokenList[i][0] == 'backColor':
-            colorFondo = re.findall(colorPattern,lineTokenList[i][1])
-            matrix = background(colorFondo[0],matrix,ancho)
-
-        elif lineTokenList[i][0] == 'direccion':
-
-            if lineTokenList[i][1] == 'Derecha':
-                directionIndex = changeDirection(directionIndex,'R')
-            elif lineTokenList[i][1] == 'Izquierda':
-                directionIndex = changeDirection(directionIndex,'L')
-            playerDirection = directions[directionIndex]
-            #print(playerDirection)
-
-        elif lineTokenList[i][0] == 'avanzar':
-            indAvances = 0
-            avancesEsperados = 1
-            cantidadAv = re.findall(digPattern,lineTokenList[i][1])
-            if(len(cantidadAv))>0:
-                avancesEsperados = int(cantidadAv[0])
-                
-            while indAvances<avancesEsperados:        
-                if playerDirection == 'North':
-                    playerPos[0]-=1
-                elif playerDirection == 'South':
-                    playerPos[0]+=1
-                elif playerDirection == 'West':
-                    playerPos[1]+=1
-                elif playerDirection == 'East':
-                    playerPos[1]-=1
-                indAvances+=1
-            
-            #print(playerPos)
-        
-        elif lineTokenList[i][0] == 'pintar':
-            #print(lineTokenList[i][1])
-            colorPintura = re.findall(colorPattern,lineTokenList[i][1]) 
-            matrix = paintCell(colorPintura[0],matrix,playerPos)
-
-        #print(lineTokenList[i])
-        
     
-    completeCode += line
+    lines.append(lineTokenList)
     iteration+=1
 
 file.close()
 
-if numErrores == 0:
-    errorFile.write("No hay errores!")
-    for i in range(ancho):
-        print(matrix[i])
-    MatrizAImagen(matrix)
+J1 = player(directionIndex,playerPos)
+
+commandExecution(matrix,ancho,lines,J1)
+
+
 
 errorFile.close()
 
