@@ -1,26 +1,10 @@
 Ancho 5
-Color de fondo Blanco
+Color de fondo Blanco 
 
-Pintar Negro Avanzar
-Pintar Negro Avanzar
-Pintar Negro Avanzar
-Pintar Negro Avanzar
-Pintar Negro Derecha
-
-Pintar Negro Avanzar
-Pintar Negro Avanzar
-Pintar Negro Avanzar
-Pintar Negro Avanzar
-Pintar Negro Derecha
-
-Pintar Negro Avanzar
-Pintar Negro Avanzar
-Pintar Negro Avanzar
-Pintar Negro Avanzar
-Pintar Negro Derecha
-
-Pintar Negro Avanzar
-Pintar Negro Avanzar
-Pintar Negro Avanzar
-Pintar Negro Avanzar
-Pintar Negro Derecha
+Repetir 4 veces { 
+    Pintar Negro Avanzar
+    Pintar Negro Avanzar
+    Pintar Negro Avanzar
+    Pintar Negro Avanzar 
+    Pintar Negro Derecha
+}

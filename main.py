@@ -16,6 +16,12 @@ class player:
         self.directionIndex = newDirectionIndex
         self.playerDirection = self.directionList[self.directionIndex]
 
+class matrix:
+    def __init__(self, matriz=[]):
+        self.matriz = matriz
+
+    def updateMatrix(self, matriz):
+        self.matriz = matriz
 
 def MatrizAImagen(matriz, filename='pixelart.png', factor=10):
     '''
@@ -54,10 +60,8 @@ def tokenizer(code): #basado en ejemplo de tokenizer en documentación modulo RE
     for matchObject in re.finditer(tokenRegex, code, flags=re.DOTALL):
         tipo = matchObject.lastgroup
         valor = matchObject.group()
-        numLinea = 1
-        linIni = 0
-        if tipo == 'numero':
-            valor = int(valor)
+        #numLinea = 1
+        #linIni = 0
         yield (tipo, valor)
 
 def initMatrix(ancho):
@@ -160,10 +164,10 @@ def commandExecution(matriz, ancho, lines, player):
     tempPlayerPos = player.playerPos
     tempDirectionIndex = player.directionIndex
     playerDirection = player.playerDirection
+    matrix = matriz.matriz
     errorLineFlag = False
     numErrores = 0
     cycleTabs = 0
-
 
     for i in range(len(lines)):
         largoLinea = len(lines[i])
@@ -173,10 +177,12 @@ def commandExecution(matriz, ancho, lines, player):
                 numAncho = re.findall(digPattern,lines[i][j][1])
                 ancho = int(numAncho[0])
                 matrix = initMatrix(ancho)
-        
+                matriz.updateMatrix(matrix) #new
+
             elif lines[i][j][0] == 'backColor':
                 colorFondo = re.findall(colorPattern,lines[i][j][1])
                 matrix = background(colorFondo[0],matrix,ancho)
+                matriz.updateMatrix(matrix) #new
 
             elif lines[i][j][0] == 'direccion':
                 if lines[i][j][1] == 'Derecha':
@@ -212,17 +218,42 @@ def commandExecution(matriz, ancho, lines, player):
                 matrix = paintCell(colorPintura[0],matrix,player)
                 for kl in range(len(matrix)):
                     print(matrix[kl])
-        
+                matriz.updateMatrix(matrix) #new
+
             elif lines[i][j][0] == 'repetir':
                 cantidadRep = re.findall(digPattern, lines[i][j][1])
-    
-    
+                repEsperadas= int(cantidadRep[0])
+                firstLinePointer = i+1
+                lastLinePointer = i+1
+                neededTabs = 1
+                tempLines = []
+                while lastLinePointer<len(lines):
+                    tempLines.append(lines[lastLinePointer])
+                    if lines[lastLinePointer][j][0] == 'cierraCiclo':
+                        break
+                    lastLinePointer+=1   
+
+                repLinesqty = lastLinePointer-firstLinePointer
+                print("LINESFORREP")
+                for l in range(repLinesqty):
+                    tempLines[l].pop(0)
+                    print(tempLines[l])
+                print("ENDLINESFORREP")
+
+                repRealizadas = 0
+                while repRealizadas<repEsperadas:
+                    commandExecution(matriz,ancho,tempLines,player)
+                    print("POSTRECURSION")
+                    repRealizadas+=1
+
+
     if numErrores == 0:
         errorFile.write("No hay errores!")
 
+    tempMatrix = matriz.matriz
     for i in range(ancho):
-        print(matrix[i])
-    MatrizAImagen(matrix)
+        print(tempMatrix[i])
+    MatrizAImagen(matriz.matriz)
 
 
 ################################################
@@ -250,7 +281,7 @@ directionIndex = 0
 playerPos = [0,0]
 #playerDirection = directions[directionIndex]
 
-matrix = []
+#matrix = []
 
 #lectura, tokenizacion y parseo
 
@@ -294,9 +325,8 @@ file.close()
 
 if execute:
     J1 = player(directionIndex,playerPos)
-
-    commandExecution(matrix,ancho,lines,J1)
-
+    matrizPNG = matrix()
+    commandExecution(matrizPNG,ancho,lines,J1)
 
 errorFile.close()
 
