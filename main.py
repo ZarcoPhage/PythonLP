@@ -163,20 +163,13 @@ def commandExecution(matriz, ancho, lines, player):
     errorLineFlag = False
     numErrores = 0
     cycleTabs = 0
-    errorFile = open("errores.txt","w+")
+
 
     for i in range(len(lines)):
         largoLinea = len(lines[i])
         print(lines[i])
         for j in range(largoLinea):
-            if lines[i][j][0] == 'NOMATCH':
-                if errorLineFlag == False:
-                    errorFile.write(str(iteration)+" "+line)
-                    numErrores += 1
-                    errorLineFlag = True
-                #print('ERROR EN LINEA: '+str(iteration))         
-        
-            elif lines[i][j][0] == 'ancho':
+            if lines[i][j][0] == 'ancho':
                 numAncho = re.findall(digPattern,lines[i][j][1])
                 ancho = int(numAncho[0])
                 matrix = initMatrix(ancho)
@@ -226,6 +219,7 @@ def commandExecution(matriz, ancho, lines, player):
     
     if numErrores == 0:
         errorFile.write("No hay errores!")
+
     for i in range(ancho):
         print(matrix[i])
     MatrizAImagen(matrix)
@@ -246,6 +240,8 @@ iteration = 1
 cycleTabs = 0
 numErrores = 0
 errorLineFlag = False
+execute = True
+
 
 ancho = 0
 
@@ -265,6 +261,8 @@ file.close()
 #print(completeCode)
 
 lines = []
+errorLines = []
+errorFile = open("errores.txt","w+")
 for line in completeCode:
     
     errorLineFlag = False
@@ -273,17 +271,31 @@ for line in completeCode:
     print("line "+str(iteration)+": "+line)
     
     for token in tokenizer(line):
+        if token[0] == 'NOMATCH':
+            #print("FOUND")
+            execute = False
+            errorLines.append((iteration,line))
         lineTokenList.append(token)
+    
     
     lines.append(lineTokenList)
     iteration+=1
 
+for errorIndex in range(len(errorLines)):
+    errorFile.write(str(errorLines[errorIndex][0])+" "+errorLines[errorIndex][1])
+
+
+for line in range(len(lines)):
+
+    print("linea"+str(line+1)+":")
+    print(lines[line])
+
 file.close()
 
-J1 = player(directionIndex,playerPos)
+if execute:
+    J1 = player(directionIndex,playerPos)
 
-commandExecution(matrix,ancho,lines,J1)
-
+    commandExecution(matrix,ancho,lines,J1)
 
 
 errorFile.close()
