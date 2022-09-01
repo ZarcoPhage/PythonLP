@@ -157,16 +157,19 @@ def paintCell(color, matrix, player):
         return matrix
 
 def changeDirection(directionIndex, order):
+    print('preCambio:'+str(directionIndex))
     if order == 'R':
         directionIndex+=1
     elif order == 'L':
         directionIndex+=3 
+    print('postCambio:'+str(directionIndex))
     directionIndex = directionIndex % 4
+    print ('postMod:'+str(directionIndex))
     return directionIndex
 
 def commandExecution(matriz, ancho, lines, player):
     tempPlayerPos = player.playerPos
-    tempDirectionIndex = player.directionIndex
+    #tempDirectionIndex = player.directionIndex
     playerDirection = player.playerDirection
     matrix = matriz.matriz
     errorLineFlag = False
@@ -189,9 +192,12 @@ def commandExecution(matriz, ancho, lines, player):
                 matriz.updateMatrix(matrix) #new
 
             elif lines[i][j][0] == 'direccion':
+                tempDirectionIndex = player.directionIndex
                 if lines[i][j][1] == 'Derecha':
+                    print('DER')
                     tempDirectionIndex = changeDirection(tempDirectionIndex,'R')
                 elif lines[i][j][1] == 'Izquierda':
+                    print('IZQ')
                     tempDirectionIndex = changeDirection(tempDirectionIndex,'L')
                 player.setPlayerDirection(tempDirectionIndex)
                 #print(player.playerDirection)
@@ -214,6 +220,20 @@ def commandExecution(matriz, ancho, lines, player):
                         tempPlayerPos[1]-=1
                     indAvances+=1
                 player.setPlayerPos(tempPlayerPos)
+                if player.playerPos[0] > (ancho-1):
+                    #raise ValueError('Player out of boundaries')
+                    print('player out of matrix')
+                    exit()
+                elif player.playerPos[1] > (ancho-1):
+                    print('player out of matrix')
+                    exit()
+                elif player.playerPos[0] < 0:
+                    print('player out of matrix')
+                    exit()
+                elif player.playerPos[1] < 0:
+                    print('player out of matrix')
+                    exit()
+
                 #print(player.playerPos)
         
             elif lines[i][j][0] == 'pintar':
