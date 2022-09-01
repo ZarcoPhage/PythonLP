@@ -11,10 +11,12 @@ class player:
 
     def setPlayerPos(self, newPlayerPos):
         self.playerPos = newPlayerPos
+        print(self.playerPos)
 
     def setPlayerDirection(self, newDirectionIndex):
         self.directionIndex = newDirectionIndex
         self.playerDirection = self.directionList[self.directionIndex]
+        print(self.playerDirection)
 
 class matrix:
     def __init__(self, matriz=[]):
@@ -22,6 +24,8 @@ class matrix:
 
     def updateMatrix(self, matriz):
         self.matriz = matriz
+        for i in range(len(self.matriz)):
+            print(self.matriz[i])
 
 def MatrizAImagen(matriz, filename='pixelart.png', factor=10):
     '''
@@ -171,7 +175,7 @@ def commandExecution(matriz, ancho, lines, player):
 
     for i in range(len(lines)):
         largoLinea = len(lines[i])
-        print(lines[i])
+        #print(lines[i])
         for j in range(largoLinea):
             if lines[i][j][0] == 'ancho':
                 numAncho = re.findall(digPattern,lines[i][j][1])
@@ -210,14 +214,14 @@ def commandExecution(matriz, ancho, lines, player):
                         tempPlayerPos[1]-=1
                     indAvances+=1
                 player.setPlayerPos(tempPlayerPos)
-                print(player.playerPos)
+                #print(player.playerPos)
         
             elif lines[i][j][0] == 'pintar':
                 colorPintura = re.findall(colorPattern,lines[i][j][1])
               
                 matrix = paintCell(colorPintura[0],matrix,player)
-                for kl in range(len(matrix)):
-                    print(matrix[kl])
+                #for kl in range(len(matrix)):
+                #    print(matrix[kl])
                 matriz.updateMatrix(matrix) #new
 
             elif lines[i][j][0] == 'repetir':
@@ -234,27 +238,32 @@ def commandExecution(matriz, ancho, lines, player):
                     lastLinePointer+=1   
 
                 repLinesqty = lastLinePointer-firstLinePointer
+                
+                for l in range(repLinesqty):
+                    print(tempLines[l])
+                
                 print("LINESFORREP")
                 for l in range(repLinesqty):
-                    tempLines[l].pop(0)
+                    if tempLines[l][0][0] == 'tab':
+                        tempLines[l].pop(0)
                     print(tempLines[l])
                 print("ENDLINESFORREP")
 
-                repRealizadas = 0
+                repRealizadas = 1
+                print("START CYCLE:")
                 while repRealizadas<repEsperadas:
                     commandExecution(matriz,ancho,tempLines,player)
-                    print("POSTRECURSION")
+                    #print("POSTRECURSION")
                     repRealizadas+=1
+                print("END CYCLE")
 
+    #if numErrores == 0:
+    #    errorFile.write("No hay errores!")
 
-    if numErrores == 0:
-        errorFile.write("No hay errores!")
-
-    tempMatrix = matriz.matriz
-    for i in range(ancho):
-        print(tempMatrix[i])
-    MatrizAImagen(matriz.matriz)
-
+    #tempMatrix = matriz.matriz
+    #for i in range(ancho):
+    #    print(tempMatrix[i])
+    #MatrizAImagen(matriz.matriz)
 
 ################################################
 # CODIGO MAIN
@@ -299,7 +308,7 @@ for line in completeCode:
     errorLineFlag = False
     lineTokenList = []
     
-    print("line "+str(iteration)+": "+line)
+    #print("line "+str(iteration)+": "+line)
     
     for token in tokenizer(line):
         if token[0] == 'NOMATCH':
@@ -316,17 +325,19 @@ for errorIndex in range(len(errorLines)):
     errorFile.write(str(errorLines[errorIndex][0])+" "+errorLines[errorIndex][1])
 
 
-for line in range(len(lines)):
+#for line in range(len(lines)):
 
-    print("linea"+str(line+1)+":")
-    print(lines[line])
+#    print("linea"+str(line+1)+":")
+#    print(lines[line])
 
 file.close()
 
 if execute:
+    errorFile.write("No hay errores!")
     J1 = player(directionIndex,playerPos)
     matrizPNG = matrix()
     commandExecution(matrizPNG,ancho,lines,J1)
+    MatrizAImagen(matrizPNG.matriz)    
 
 errorFile.close()
 

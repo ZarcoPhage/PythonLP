@@ -1,10 +1,10 @@
-Ancho 5
-Color de fondo Blanco 
+Ancho 10
+Color de fondo Blanco
 
-Repetir 4 veces { 
-    Pintar Negro Avanzar
-    Pintar Negro Avanzar
-    Pintar Negro Avanzar
-    Pintar Negro Avanzar 
-    Pintar Negro Derecha
+Avanzar Derecha Avanzar
+Repetir 4 veces {
+    Repetir 8 veces {
+        Pintar Negro Avanzar
+    }
+    Derecha Derecha Avanzar Derecha
 }

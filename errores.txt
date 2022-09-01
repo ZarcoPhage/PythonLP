@@ -1,3 +1,1 @@
-2 Color de fondo Blanco v
-4 Repetir 4 veces { askjg
-8     Pintar Negro Avanzar a
+No hay errores!
