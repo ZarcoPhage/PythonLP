@@ -11,12 +11,12 @@ class player:
 
     def setPlayerPos(self, newPlayerPos):
         self.playerPos = newPlayerPos
-        print(self.playerPos)
+        #print(self.playerPos)
 
     def setPlayerDirection(self, newDirectionIndex):
         self.directionIndex = newDirectionIndex
         self.playerDirection = self.directionList[self.directionIndex]
-        print(self.playerDirection)
+        #print(self.playerDirection)
 
 class matrix:
     def __init__(self, matriz=[]):
@@ -24,8 +24,8 @@ class matrix:
 
     def updateMatrix(self, matriz):
         self.matriz = matriz
-        for i in range(len(self.matriz)):
-            print(self.matriz[i])
+        #for i in range(len(self.matriz)):
+        #    print(self.matriz[i])
 
 def MatrizAImagen(matriz, filename='pixelart.png', factor=10):
     '''
@@ -50,10 +50,10 @@ def tokenizer(code): #basado en ejemplo de tokenizer en documentación modulo RE
     tokenSpecs = [
         #('numero', r' \d+'),
         ('ancho',r'Ancho \d+'),
-        ('backColor',r'Color de fondo (Rojo|Verde|Azul|Negro|Blanco|RGB[(]\d+[,]\d+[,]\d+[)])'),
+        ('backColor',r'Color de fondo (Rojo|Verde|Azul|Negro|Blanco|RGB[(]([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])[,]([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])[,]([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])[)])'),
         #('color', r'Rojo|Verde|Azul|Negro|Blanco|RGB[(]\d+[,]\d+[,]\d+[)]'),
         ('repetir', r'Repetir \d+ veces {'),
-        ('pintar', r'Pintar (Rojo|Verde|Azul|Negro|Blanco|RGB[(]\d+[,]\d+[,]\d+[)])'),
+        ('pintar', r'Pintar (Rojo|Verde|Azul|Negro|Blanco|RGB[(]([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])[,]([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])[,]([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])[)])'),
         ('avanzar', r'Avanzar \d+|Avanzar'),
         ('direccion', r'Derecha|Izquierda'),
         ('tab',r'   '),
@@ -125,7 +125,7 @@ def paintCell(color, matrix, player):
     playerPos = player.playerPos
     xPos = playerPos[0]
     yPos = playerPos[1]
-    print(xPos,yPos)
+    #print(xPos,yPos)
     if color == 'Rojo':
         newColor = (255,0,0)
         matrix[xPos][yPos] = newColor
@@ -157,17 +157,42 @@ def paintCell(color, matrix, player):
         return matrix
 
 def changeDirection(directionIndex, order):
-    print('preCambio:'+str(directionIndex))
+    '''
+    actualiza la direccion del jugador segun su indice de direccion (el cual varía entre 0 y 3, donde
+    0 corresponde a oeste, 1 a sur, 2 a este y 3 a norte) y la orden (izquierda o derecha), actualizando 
+    la dirección de movimiento del jugador según se necesite al invocar la función con respecto al token reconocido
+
+        Parametros:
+            directionIndex (int): indice de direccion actual del jugador
+            order (string): direccion a la que se desea girar al jugador (R para derecha, L para izquierda)
+        
+        Retorno:
+            directionIndex(int): indice de direccion actualizado del jugador, permite actualizar la direccion posteriormente
+    '''
+    #print('preCambio:'+str(directionIndex))
     if order == 'R':
         directionIndex+=1
     elif order == 'L':
         directionIndex+=3 
-    print('postCambio:'+str(directionIndex))
+    #print('postCambio:'+str(directionIndex))
     directionIndex = directionIndex % 4
-    print ('postMod:'+str(directionIndex))
+    #print ('postMod:'+str(directionIndex))
     return directionIndex
 
 def commandExecution(matriz, ancho, lines, player):
+    '''
+    Funcion que toma los objetos de la matriz y el jugador, rescata sus datos y los actualiza segun los tokens reconocidos previamente en el
+    analisis lexico, ejecutando secuencialmente las ordenes reconocidas
+
+        Parametros:
+            matriz (objeto): lista de listas de tuplas correspondientes a los colores, formando una matriz de cierto ancho que se reconoce según tokens
+            ancho (int): tamano de la matriz n x n correspondiente a los colores, con el cual se inicializa e itera la matriz
+            lines (lista): lista de listas de tuplas, cada sublista interior (correspondiente a una linea) contiene los tokens identificados de la linea, los cuales se encuentran en una tupla, cada cual en formato ('<instrucción>','<expresión identificada>')
+            player (objeto): datos del jugador, su posicion y dirección
+
+        Retorno:
+            No retorna, solo actúa como proceso, actualizando la matriz y el jugador segun los tokens identificados
+    '''
     tempPlayerPos = player.playerPos
     #tempDirectionIndex = player.directionIndex
     playerDirection = player.playerDirection
@@ -194,10 +219,10 @@ def commandExecution(matriz, ancho, lines, player):
             elif lines[i][j][0] == 'direccion':
                 tempDirectionIndex = player.directionIndex
                 if lines[i][j][1] == 'Derecha':
-                    print('DER')
+                    #print('DER')
                     tempDirectionIndex = changeDirection(tempDirectionIndex,'R')
                 elif lines[i][j][1] == 'Izquierda':
-                    print('IZQ')
+                    #print('IZQ')
                     tempDirectionIndex = changeDirection(tempDirectionIndex,'L')
                 player.setPlayerDirection(tempDirectionIndex)
                 #print(player.playerDirection)
@@ -252,44 +277,40 @@ def commandExecution(matriz, ancho, lines, player):
                 neededTabs = 1
                 tempLines = []
                 while lastLinePointer<len(lines):
+                    #print(lines[lastLinePointer])
                     tempLines.append(lines[lastLinePointer])
                     if lines[lastLinePointer][j][0] == 'cierraCiclo':
                         break
+                    #print("FLAG")
+                    #print(lastLinePointer)
+                    #print(len(lines))
                     lastLinePointer+=1   
 
+                #print("POSTRECOVERY")
                 repLinesqty = lastLinePointer-firstLinePointer
                 
-                for l in range(repLinesqty):
-                    print(tempLines[l])
+                #for l in range(repLinesqty):
+                #    print(tempLines[l])
                 
-                print("LINESFORREP")
+                #print("LINESFORREP")
                 for l in range(repLinesqty):
                     if tempLines[l][0][0] == 'tab':
                         tempLines[l].pop(0)
-                    print(tempLines[l])
-                print("ENDLINESFORREP")
+                    #print(tempLines[l])
+                #print("ENDLINESFORREP")
 
                 repRealizadas = 1
-                print("START CYCLE:")
+                #print("START CYCLE:")
                 while repRealizadas<repEsperadas:
                     commandExecution(matriz,ancho,tempLines,player)
                     #print("POSTRECURSION")
                     repRealizadas+=1
-                print("END CYCLE")
-
-    #if numErrores == 0:
-    #    errorFile.write("No hay errores!")
-
-    #tempMatrix = matriz.matriz
-    #for i in range(ancho):
-    #    print(tempMatrix[i])
-    #MatrizAImagen(matriz.matriz)
+                #print("END CYCLE")
 
 ################################################
 # CODIGO MAIN
 ################################################
 
-#inicializacion
 completeCode = []
 
 digPattern = re.compile(r'\d+')
@@ -302,23 +323,13 @@ numErrores = 0
 errorLineFlag = False
 execute = True
 
-
 ancho = 0
-
 directionIndex = 0
-#directions = ('West','South','East','North')
 playerPos = [0,0]
-#playerDirection = directions[directionIndex]
-
-#matrix = []
-
-#lectura, tokenizacion y parseo
 
 for line in file:
     completeCode.append(line)
 file.close()
-
-#print(completeCode)
 
 lines = []
 errorLines = []
@@ -327,9 +338,7 @@ for line in completeCode:
     
     errorLineFlag = False
     lineTokenList = []
-    
-    #print("line "+str(iteration)+": "+line)
-    
+
     for token in tokenizer(line):
         if token[0] == 'NOMATCH':
             #print("FOUND")
@@ -344,12 +353,6 @@ for line in completeCode:
 for errorIndex in range(len(errorLines)):
     errorFile.write(str(errorLines[errorIndex][0])+" "+errorLines[errorIndex][1])
 
-
-#for line in range(len(lines)):
-
-#    print("linea"+str(line+1)+":")
-#    print(lines[line])
-
 file.close()
 
 if execute:
@@ -357,28 +360,8 @@ if execute:
     J1 = player(directionIndex,playerPos)
     matrizPNG = matrix()
     commandExecution(matrizPNG,ancho,lines,J1)
-    MatrizAImagen(matrizPNG.matriz)    
+    MatrizAImagen(matrizPNG.matriz)
+    for l in range(len(matrizPNG.matriz)):
+        print(matrizPNG.matriz[l])
 
 errorFile.close()
-
-
-#print(completeCode)
-
-#print(code)
-#commandExecution(code)
-
-#print(re.findall(scanPattern, code))
-
-
-
-'''
-TO DO: 
-- Reconocimiento de tokens DONE
-- ejecucion de instrucciones: FALTA INSTRUCCION REPETIR
-- detección de errores: DONE
-- creacion de imagen luego de la ejecucion: DONE
-- creacion de archivo errores: DONE
-- mostrar por consola los valores de la matriz RGB en caso de ejecución exitosa: DONE
-'''
-
-
