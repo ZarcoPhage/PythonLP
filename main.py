@@ -3,26 +3,78 @@ import numpy as np
 from PIL import Image
 
 class player:
+    '''
+    clase que permite guardar y encapsular los datos del jugador para realizar recursión sin afectar la ejecución
+    '''
     def __init__(self, directionIndex, playerPos, directionList = ('West','South','East','North')):
+        '''
+        inicializa los datos del jugador, permitiendo posteriormente almacenar sus datos para rescatarlos y/o actualizarlos 
+        al realizar recursión
+        
+            parametros:
+                directionIndex (int): indice de direccion inicial para determinar la direccion por defecto del jugador segun su lista de direcciones, varia entre 0 y 3
+                playerPos (lista de dos enteros): posicion inicial del jugador en formato [x,y]
+        '''
+
         self.directionList = directionList
         self.directionIndex = directionIndex
         self.playerPos = playerPos
         self.playerDirection = directionList[directionIndex]
 
     def setPlayerPos(self, newPlayerPos):
+        '''
+        guarda en el objeto la posición del jugador con respecto a la matriz
+
+            parametros:
+                newPlayerPos (lista de dos enteros): posicion del jugador respecto a la matriz en formato [x,y]
+            
+            retorno:
+                no retorna, solo actualiza datos del objeto
+        '''
         self.playerPos = newPlayerPos
         #print(self.playerPos)
 
     def setPlayerDirection(self, newDirectionIndex):
+        '''
+        actualiza la direccion del jugador a partir de su nuevo indice de dirección, reasignando la dirección
+        segun las posiciones de la lista de direcciones disponibles del jugador
+
+            parametros:
+                newDirectionIndex(int): nuevo indice de direccion con el que se desea acceder a la lista de direcciones y actualizar la direccion del jugador, varia entre 0-3
+        
+            retorno:
+                no retorna, solo actualiza los datos de la direccion del jugador
+        '''
         self.directionIndex = newDirectionIndex
         self.playerDirection = self.directionList[self.directionIndex]
         #print(self.playerDirection)
 
 class matrix:
+    '''
+    clase que permite guardar y encapsular los datos de la matriz para utilizarse en recursión sin afectar la ejecución
+    '''
     def __init__(self, matriz=[]):
+        '''
+        inicializa el objeto como una lista vacía, permitiendo actualizar posteriormente la matriz
+        
+            parametros:
+                no recibe parametros como tal
+
+            retorno:
+                no retorna, solo genera el objeto
+        '''
         self.matriz = matriz
 
     def updateMatrix(self, matriz):
+        '''
+        actualiza la matriz del objeto, guardando los nuevos datos actualizados de la matriz
+
+            parametros:
+                matriz (lista de listas de tuplas de enteros): matriz correspondiente a la imagen que se desea guardar y encapsular, contiene los datos de los colores de cada casilla de la matriz
+            
+            retorno:
+                no retorna, solo actualiza la matriz del objeto
+        '''
         self.matriz = matriz
         #for i in range(len(self.matriz)):
         #    print(self.matriz[i])
@@ -46,7 +98,20 @@ def MatrizAImagen(matriz, filename='pixelart.png', factor=10):
     img.save(filename)
 
 
-def tokenizer(code): #basado en ejemplo de tokenizer en documentación modulo RE
+def tokenizer(code):
+    '''
+    basado en el ejemplo de Tokenizer del modulo RE de python, identifica los tokens de cierto string
+    correspondiente al codigo y realiza análisis sintactico, permite iterar el string, retornando tuplas
+    en formato (<instruccion>,<expresion>), las cuales se pueden guardar posteriormente en una lista para ejecutar
+    código secuencialmente, dado que se utiliza yield en lugar de return, transformando la funcion en generador
+    permitiendo suspender la función sin eliminar variables locales, 
+
+        parametros:
+            code(string): string del archivo de código al cual se desea analizar sintaxis e identificar tokens
+        
+        retorno:
+            tup (tupla): tupla correspondiente al token identificado, en formato (<nombre_instruccion>,<expresión_reconocida>)
+    '''
     tokenSpecs = [
         #('numero', r' \d+'),
         ('ancho',r'Ancho \d+'),
@@ -66,9 +131,22 @@ def tokenizer(code): #basado en ejemplo de tokenizer en documentación modulo RE
         valor = matchObject.group()
         #numLinea = 1
         #linIni = 0
-        yield (tipo, valor)
+        tup = (tipo, valor)
+        yield tup
 
 def initMatrix(ancho):
+    '''
+    funcion que inicializa la matriz, formando las filas y columnas según el ancho dado, rellenando 
+    y formando cada casilla con un color predeterminado, retorna la matriz inicializada, la cual se puede
+    guardar en el objeto Matriz
+
+        parametros:
+            ancho (int): tamano que se le desea dar a la matriz, inicializandola como matriz cuadrada de tamano ancho x ancho
+
+        retorno:
+            matrix (lista de listas de tuplas de enteros): matriz cuadrada ancho x ancho, correspondiente a la imagen que se desea crear, donde cada posicion de la matriz es una tupla correspondiente a cierto color
+
+    '''
     matrix = []
     for i in range(ancho):
         filasMatriz = []
@@ -79,6 +157,19 @@ def initMatrix(ancho):
     return matrix
 
 def background(color, matrix, ancho):
+    '''
+    pinta el fondo de la matriz de cierto color según su color ya sea por nombre o en código RGB,
+    retornando la matriz para su actualización en el objeto Matrix
+
+        parametros:
+            color (string): nombre de cierto color o su código RGB correspondiente, con el que se desea pintar el fondo de la imagen
+            matrix (lista de listas de tuplas): matriz correspondiente a la imagen, donde cada tupla corresponde al color de casilla
+            ancho (int): tamano de la matriz, con el que se permite iterar y actualizar los datos
+        
+        retorno:
+            matrix (lista de listas de tuplas de enteros): matriz correspondiente a la imagen con el fondo pintado segun el color
+    '''
+    
     if color == 'Rojo':
         newColor = (255,0,0)
         for i in range(ancho):
@@ -105,8 +196,8 @@ def background(color, matrix, ancho):
         return matrix
     elif color == 'Blanco':
         newColor = (255,255,255)
-        for i in range(ancho):
-            for j in range(ancho):
+        for j in range(ancho):
+            for i in range(ancho):
                 matrix[i][j] = newColor
         return matrix
     else:
@@ -122,6 +213,19 @@ def background(color, matrix, ancho):
         return matrix
 
 def paintCell(color, matrix, player):
+    '''
+    pinta la casilla de la posicion del jugador en la matriz segun cierto codigo de color
+    identificado y retorna la matriz para su actualización
+
+        Parametros:
+            color (string): string con el nombre del color o el codigo RGB de cierto color con el que se desea pintar la casilla
+            matrix (lista de listas de tuplas): matriz correspondiente a la imagen recuperada del objeto 'Matriz', donde cada tupla es una casilla correspondiente a un color
+            player (objeto/clase): objeto que almacena la posición y dirección del jugador
+
+        Retorno:
+            matrix (lista de listas de tuplas de enteros): matriz actualizada que se utiliza para actualizar los datos del objeto matriz
+    '''
+    
     playerPos = player.playerPos
     xPos = playerPos[0]
     yPos = playerPos[1]
@@ -185,7 +289,7 @@ def commandExecution(matriz, ancho, lines, player):
     analisis lexico, ejecutando secuencialmente las ordenes reconocidas
 
         Parametros:
-            matriz (objeto): lista de listas de tuplas correspondientes a los colores, formando una matriz de cierto ancho que se reconoce según tokens
+            matriz (objeto): lista de listas de tuplas de enteros correspondientes a los colores, formando una matriz de cierto ancho que se reconoce según tokens
             ancho (int): tamano de la matriz n x n correspondiente a los colores, con el cual se inicializa e itera la matriz
             lines (lista): lista de listas de tuplas, cada sublista interior (correspondiente a una linea) contiene los tokens identificados de la linea, los cuales se encuentran en una tupla, cada cual en formato ('<instrucción>','<expresión identificada>')
             player (objeto): datos del jugador, su posicion y dirección
@@ -338,14 +442,21 @@ for line in completeCode:
     
     errorLineFlag = False
     lineTokenList = []
-
     for token in tokenizer(line):
         if token[0] == 'NOMATCH':
             #print("FOUND")
             execute = False
             errorLines.append((iteration,line))
         lineTokenList.append(token)
-    
+        if token[0] == 'ancho':
+            #print("FOUND")
+            if iteration != 1:
+                execute = False
+                errorLines.append((iteration,line))
+        if token[0] == 'backColor':
+            if iteration != 2:
+                execute = False
+                errorLines.append((iteration,line))
     
     lines.append(lineTokenList)
     iteration+=1

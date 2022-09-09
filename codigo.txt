@@ -72,7 +72,7 @@ Repetir 2 veces {
 }
 Pintar RGB(255,255,0)
 Izquierda Avanzar Pintar RGB(255,255,0)
-Repetir 2 veces {
+Repetir 2 veces { 
     Derecha Avanzar
 }
 Pintar RGB(255,255,0) Avanzar Pintar RGB(255,255,0)
